@@ -11,6 +11,7 @@
 
     <style>
         body{
+            background-color: rgb(245, 183, 224);
             padding-top: 50px;
         }
         
@@ -19,6 +20,16 @@
         }
         .chatabled{
             display: block;
+        }
+        .jumbotron {
+            background-color: rgb(245, 183, 224);
+            border: white 4px solid;
+        }
+        .form-group {
+            text-align: center;
+            border: white 4px solid;
+            padding: 10px;
+            
         }
     </style>
     <!-- socket js-->
@@ -46,6 +57,7 @@
                 $("#nickNameForm").css("display","none");
                 $("#sendMessage").hide(); $("#closing").hide();
                 $("#ramdomChatFindBtn").show();
+                $("#content").hide();
                 clientCounting();
             });
  
@@ -63,6 +75,7 @@
                 $("#chat").html("").append("<li><p>대화방에 입장했습니다!!</p><hr></li>");
                 $("#sendMessage").show(); $("#closing").show();
                 $("#ramdomChatFindBtn").hide();
+                $("#content").show();
                 roomName = data;
             });
 
@@ -134,11 +147,16 @@
 <body>
     <div class="container">
         <div class="jumbotron">
-            <h1>1대1 랜덤채팅</h1>
+            <h1>G-개팅</h1>
             <p>
-                대화방을 찾고 있는 상대방과 1대1로 채팅을 할 수 있는 사이트 입니다.<br>
-                닉네임을 입력하시고 확인버튼을 누르시면<br>
-                상대와 대화를 할 수 있는 채팅창을 활성화 하실 수 있습니다.
+                랜덤 익명 소개팅 앱 G-개팅에 오신 것을 진심으로<br>
+                환영합니다! <br>
+                저희 G-개팅은 사용자 모두 익명의 닉네임을<br>
+                사용하여 마음 편히 상대방과 채팅을 즐길 수 있는<br>
+                앱입니다.<br>
+                규칙<br>
+                1. 상대방에게 욕설 금지<br>
+                2. 상대방의 이름을 묻지 않기
             </p>
         </div>
     </div>
