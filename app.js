@@ -3,7 +3,7 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server)
-const hostname = '10.120.74.70';
+const hostname = '192.168.0.21';
 
 app.set('views', './views')
 app.set('view engine', 'ejs');
@@ -74,6 +74,16 @@ io.sockets.on("connection",function(socket){
                 }
             }
         }
+
+        socket.on("disconnect", () => {
+            for(let a = 0; a < clients.length; a++) {
+                if(clients[a].name == socket.name) {
+                    let aroom = clients[a].roomName;
+                    clients.splice(a, 1);
+                    io.sockets.to(aroom).emit("discWhileChat");
+                }
+            }
+        })
     });
 
     socket.on("message", (result) => {
@@ -92,6 +102,10 @@ io.sockets.on("connection",function(socket){
                 clients[a].status = notFinding;
             }
         }
+    })
+    
+    socket.on("clientsCount", () => {
+        io.sockets.emit("clientsCount", clients.length);
     })
 });
 

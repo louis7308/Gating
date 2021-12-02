@@ -46,6 +46,7 @@
                 $("#nickNameForm").css("display","none");
                 $("#sendMessage").hide(); $("#closing").hide();
                 $("#ramdomChatFindBtn").show();
+                clientCounting();
             });
  
             
@@ -64,6 +65,10 @@
                 $("#ramdomChatFindBtn").hide();
                 roomName = data;
             });
+
+            socket.on("clientsCount",function(data){
+                $(".clientsCount").html(data);
+            })
  
  
             function startFinding(){
@@ -113,6 +118,16 @@
                 $("#ramdomChatFindBtn").show();
                 socket.emit("ChatClosing", {roomName: roomName});
             })
+
+            socket.on("discWhileChat", () => {
+                socket.emit("chatClosingBtn", {roomName: roomName});
+            })
+
+            function clientCounting() {
+                setInterval(() => {
+                    socket.emit("clientsCount")
+                }, 1500)
+            }
         }
     </script>
 </head>
