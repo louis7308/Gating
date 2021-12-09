@@ -33,116 +33,6 @@
         }
     </style>
     <!-- socket js-->
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        window.onload = function(){
-            var nickName = "";
-            var roomName = "";
-            var handle = null;
-            var socket = io.connect(); //웹소켓서버에 연결한다.
- 
-            $("#nicknameBtn").on("click",function(){
-                var nicknameValue = $("input[name='nickname']").val();
-                nickName = nicknameValue;
-                socket.emit("nickNameCheck",{name:nicknameValue});
-            });
-            socket.on("nullError",function(result){
-                alert(result);
-            });
-            socket.on("sameNameError",function(result){
-                alert(result);
-            });
-            socket.on("nickNameCheckComplete",function(){
-                $("#chatBox").removeClass("chatDisabled").addClass("chatabled");
-                $("#nickNameForm").css("display","none");
-                $("#sendMessage").hide(); $("#closing").hide();
-                $("#ramdomChatFindBtn").show();
-                $("#content").hide();
-                clientCounting();
-            });
- 
-            
-            $("#ramdomChatFindBtn").on("click",function(){
-                $("#chat").html("");
-                socket.emit("randomChatFindClick",{name:nickName});
-            })
-            socket.on("randomChatFindClickComplete",function(){
-                $("#chat").html("").append("<li>대화상대를 찾고있습니다...</li>");
-                startFinding(); //실제로 대화상대찾기 시작
-            });
-            socket.on("randomChatFiningComplete",function(data){
-                stopFinding(); //찾는걸 성공했으니 찾는걸 멈춰야댐.
-                $("#chat").html("").append("<li><p>대화방에 입장했습니다!!</p><hr></li>");
-                $("#sendMessage").show(); $("#closing").show();
-                $("#ramdomChatFindBtn").hide();
-                $("#content").show();
-                roomName = data;
-            });
-
-            socket.on("clientsCount",function(data){
-                $(".clientsCount").html(data);
-            })
- 
- 
-            function startFinding(){
-                if(handle == null){
-                    handle = setInterval(function(){
-                        socket.emit("randomChatFining",{name:nickName});
-                    },500);
-                }
-            }
- 
-            function stopFinding(){
-                clearInterval(handle);
-                handle = null;
-            }
-            $("#sendMessage").on("click", () => {
-                let content = $("#content").val();
-                console.log(content);
-                if(!content) {
-                    alert("대화내용을 입력해주세요");
-                    return ;
-                }
-
-                let str = "";
-                str += "<li>";
-                str += "<strong>" + nickName + "</strong>";
-                str += "<p>" + content + "</p>";
-                str += "<hr>";
-                str += "</li>";
-
-                socket.emit("message", {roomName : roomName, data : str});
-                $("#content").val("");
-                $("#chat").scrollTop($("#chat")[0].scrollHeight);
-            })
-
-            socket.on("message", (data) => {
-                $("#chat").append(data);
-            })
-
-            $("#closing").on("click", () => {
-                socket.emit("chatClosingBtn", {roomName: roomName});
-            })
-
-            socket.on("chatEnd", (data) => {
-                $("#chat").append("<li><p>대화방이 종료되었습니다</p></li>");
-                $("#sendMessage").hide();
-                $("#closing").hide();
-                $("#ramdomChatFindBtn").show();
-                socket.emit("ChatClosing", {roomName: roomName});
-            })
-
-            socket.on("discWhileChat", () => {
-                socket.emit("chatClosingBtn", {roomName: roomName});
-            })
-
-            function clientCounting() {
-                setInterval(() => {
-                    socket.emit("clientsCount")
-                }, 1500)
-            }
-        }
-    </script>
 </head>
 <body>
     <div class="container">
@@ -178,7 +68,7 @@
             <div class="panel-footer">
                 <div class="row">
                     <div class="col-xs-9">
-                        <input type="text" class="form-control" id="content" name="content" placeholder="대화내용을 입력하세요.." maxlength="3000">
+                        <input type="text" class="form-control" id="content" name="content" onkeyup="enterkey()" placeholder="대화내용을 입력하세요.." maxlength="3000">
                     </div>
                     <div class="col-xs-3">
                         <button class="btn btn-primary" id="sendMessage">보내기</button>
@@ -189,5 +79,123 @@
             </div>
         </div>
     </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var nickName = "";
+        var roomName = "";
+        var handle = null;
+        var socket = io.connect(); //웹소켓서버에 연결한다.
+
+        const sendMessageFunc = () => {
+            let content = $("#content").val();
+            console.log(content);
+            if(!content) {
+                alert("대화내용을 입력해주세요");
+                return ;
+            }
+
+            let str = "";
+            str += "<li>";
+            str += "<strong>" + nickName + "</strong>";
+            str += "<p>" + content + "</p>";
+            str += "<hr>";
+            str += "</li>";
+
+            socket.emit("message", {roomName : roomName, data : str});
+            $("#content").val("");
+            $("#chat").scrollTop($("#chat")[0].scrollHeight);
+        }
+
+        $("#nicknameBtn").on("click",function(){
+            var nicknameValue = $("input[name='nickname']").val();
+            nickName = nicknameValue;
+            socket.emit("nickNameCheck",{name:nicknameValue});
+        });
+        socket.on("nullError",function(result){
+            alert(result);
+        });
+        socket.on("sameNameError",function(result){
+            alert(result);
+        });
+        socket.on("nickNameCheckComplete",function(){
+            $("#chatBox").removeClass("chatDisabled").addClass("chatabled");
+            $("#nickNameForm").css("display","none");
+            $("#sendMessage").hide(); $("#closing").hide();
+            $("#ramdomChatFindBtn").show();
+            $("#content").hide();
+            clientCounting();
+        });
+
+        
+        $("#ramdomChatFindBtn").on("click",function(){
+            $("#chat").html("");
+            socket.emit("randomChatFindClick",{name:nickName});
+        })
+        socket.on("randomChatFindClickComplete",function(){
+            $("#chat").html("").append("<li>대화상대를 찾고있습니다...</li>");
+            startFinding(); //실제로 대화상대찾기 시작
+        });
+        socket.on("randomChatFiningComplete",function(data){
+            stopFinding(); //찾는걸 성공했으니 찾는걸 멈춰야댐.
+            $("#chat").html("").append("<li><p>대화방에 입장했습니다!!</p><hr></li>");
+            $("#sendMessage").show(); $("#closing").show();
+            $("#ramdomChatFindBtn").hide();
+            $("#content").show();
+            roomName = data;
+        });
+
+        socket.on("clientsCount",function(data){
+            $(".clientsCount").html(data);
+        })
+
+
+        function startFinding(){
+            if(handle == null){
+                handle = setInterval(function(){
+                    console.log(name.nickname);
+                    socket.emit("randomChatFining",{name:nickName});
+                },500);
+            }
+        }
+
+        function stopFinding(){
+            clearInterval(handle);
+            handle = null;
+        }
+        $("#sendMessage").on("click", sendMessageFunc)
+        
+        socket.on("message", (data) => {
+            $("#chat").append(data);
+        })
+
+        $("#closing").on("click", () => {
+            socket.emit("chatClosingBtn", {roomName: roomName});
+        })
+
+        socket.on("chatEnd", (data) => {
+            $("#chat").append("<li><p>대화방이 종료되었습니다</p></li>");
+            $("#sendMessage").hide();
+            $("#closing").hide();
+            $("#ramdomChatFindBtn").show();
+            socket.emit("ChatClosing", {roomName: roomName});
+        })
+
+        socket.on("discWhileChat", () => {
+            socket.emit("chatClosingBtn", {roomName: roomName});
+        })
+
+        function clientCounting() {
+            setInterval(() => {
+                socket.emit("clientsCount")
+            }, 1500)
+        }
+        const enterkey = () => {
+            console.log(window.event.keyCode);
+            if(window.event.keyCode == 13) {
+                sendMessageFunc();
+            }
+        }
+    </script>
 </body>
 </html>

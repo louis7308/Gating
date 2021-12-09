@@ -3,7 +3,7 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server)
-const hostname = '222.238.250.160';
+const hostname = '10.120.74.70';
 
 app.set('views', './views')
 app.set('view engine', 'ejs');
